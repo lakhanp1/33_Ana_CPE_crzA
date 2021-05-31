@@ -1,0 +1,5 @@
+sampleId	sampleName	condition	IP_tag	rep	control	peakType
+crzA_GFP_caspofungin_1_TGCGGTTAT_ChIPMix81	crzA_GFP_casp_1	caspofungin	TF	1	.	narrowPeak
+crzA_GFP_caspofungin_2_CCTTTACAGT_ChIPMix81	crzA_GFP_casp_2	caspofungin	TF	2	.	narrowPeak
+crzA_GFP_caspofungin_control_1_TCGCGTACT_ChIPMix81	crzA_GFP_ctrl_1	control	TF	1	.	narrowPeak
+crzA_GFP_caspofungin_control_2_TATACCGTT_ChIPMix81	crzA_GFP_ctrl_2	control	TF	2	.	narrowPeak
