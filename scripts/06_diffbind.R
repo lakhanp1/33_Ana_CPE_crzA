@@ -12,7 +12,7 @@ suppressPackageStartupMessages(library(DiffBind))
 
 rm(list = ls())
 
-outDir <- here::here("analysis", "11_aflR_AN7820_analysis", "a04_diffbind")
+outDir <- here::here("analysis", "05_crzA_diffbind")
 
 if(!dir.exists(outDir)){
   dir.create(path = outDir)
