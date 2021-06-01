@@ -20,7 +20,7 @@ if(!dir.exists(outDir)){
 
 ## the denominator or WT in log2(fold_change) should be second
 col_compare <- "diffbind_condition"
-diffbindCompare <- c("high_Xylose", "low_Xylose")
+diffbindCompare <- c("caspofungin", "control")
 
 analysisName <- "AflR_diffbind"
 outPrefix <- paste(outDir, "/", analysisName, sep = "")
