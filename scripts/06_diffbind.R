@@ -22,7 +22,7 @@ if(!dir.exists(outDir)){
 col_compare <- "diffbind_condition"
 diffbindCompare <- c("caspofungin", "control")
 
-analysisName <- "crzA_diffbind"
+analysisName <- "crzA_diffbind2"
 outPrefix <- paste(outDir, "/", analysisName, sep = "")
 
 fdr_cut <- 0.05
