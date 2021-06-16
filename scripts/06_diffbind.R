@@ -1,6 +1,6 @@
 suppressPackageStartupMessages(library(chipmine))
-suppressPackageStartupMessages(library(org.Anidulans.FGSCA4.eg.db))
-suppressPackageStartupMessages(library(BSgenome.Anidulans.FGSCA4.AspGD))
+suppressPackageStartupMessages(library(org.AFumigatus.A1163.eg.db))
+suppressPackageStartupMessages(library(BSgenome.Afumigatus.A1163.AspGD))
 suppressPackageStartupMessages(library(DiffBind))
 
 
@@ -12,18 +12,20 @@ suppressPackageStartupMessages(library(DiffBind))
 
 rm(list = ls())
 
-outDir <- here::here("analysis", "05_crzA_diffbind")
-
-if(!dir.exists(outDir)){
-  dir.create(path = outDir)
-}
+analysisName <- "crzA_diffbind"
 
 ## the denominator or WT in log2(fold_change) should be second
 col_compare <- "diffbind_condition"
 diffbindCompare <- c("caspofungin", "control")
 
-analysisName <- "crzA_diffbind2"
+outDir <- here::here("analysis", "05_crzA_diffbind")
 outPrefix <- paste(outDir, "/", analysisName, sep = "")
+
+orgDb <- org.AFumigatus.A1163.eg.db
+
+file_diffbindInfo <- paste(outDir, "/diffbind_info.txt", sep = "")
+file_exptInfo <- here::here("data", "reference_data", "ChIPseq_sample_info.tab")
+TF_dataPath <- here::here("data", "ChIPseq_CEA17")
 
 fdr_cut <- 0.05
 lfc_cut <- 1
@@ -31,15 +33,11 @@ up_cut <- lfc_cut
 down_cut <- lfc_cut * -1
 
 ##################################################################################
-orgDb <- org.Anidulans.FGSCA4.eg.db
 
-file_diffbindInfo <- paste(outDir, "/diffbind_info.txt", sep = "")
+if(!dir.exists(outDir)){
+  dir.create(path = outDir)
+}
 
-file_exptInfo <- here::here("data", "reference_data", "sample_info.txt")
-
-TF_dataPath <- here::here("data", "TF_data")
-
-##################################################################################
 diffbindInfo <- suppressMessages(readr::read_tsv(file = file_diffbindInfo))
 
 ## get the sample details
@@ -51,7 +49,7 @@ exptData <- get_sample_information(
 
 exptData <- dplyr::left_join(x = exptData, y = diffbindInfo, by = "sampleId") %>% 
   dplyr::mutate(
-    bam = paste(here::here("data"), "/bams/", sampleId, "_bt2.bam", sep = "")
+    bam = paste(TF_dataPath, "/bams/", sampleId, "_bt2.bam", sep = "")
   )
 
 exptDataList <- purrr::transpose(exptData) %>%
@@ -105,21 +103,10 @@ groupCols <- sapply(
 )
 
 
-geneDesc <- suppressMessages(
+geneInfo <- suppressMessages(
   AnnotationDbi::select(x = orgDb, keys = keys(orgDb), columns = c("DESCRIPTION"), keytype = "GID")
 ) %>% 
   dplyr::rename(geneId = GID)
-
-smInfo <- suppressMessages(
-  AnnotationDbi::select(x = orgDb, keys = keys(orgDb, keytype = "SM_CLUSTER"),
-                        columns = c("GID", "SM_ID"), keytype = "SM_CLUSTER")) %>% 
-  dplyr::group_by(GID) %>% 
-  dplyr::mutate(SM_CLUSTER = paste(SM_CLUSTER, collapse = ";"),
-                SM_ID = paste(SM_ID, collapse = ";")) %>% 
-  dplyr::slice(1L) %>% 
-  dplyr::ungroup()
-
-geneInfo <- dplyr::left_join(x = geneDesc, y = smInfo, by = c("geneId" = "GID"))
 
 glimpse(geneInfo)
 
@@ -130,7 +117,7 @@ glimpse(geneInfo)
 # 
 # plot(dataDba)
 # 
-# countsDba <- DiffBind::dba.count(DBA = dataDba)
+# countsDba <- DiffBind::dba.count(DBA = dataDba, summits = 150)
 # 
 # plot(countsDba)
 # 
