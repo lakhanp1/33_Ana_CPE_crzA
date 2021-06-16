@@ -11,7 +11,7 @@ suppressPackageStartupMessages(library(here))
 
 rm(list = ls())
 
-source(file = "E:/Chris_UM/GitHub/omics_util/04_GO_enrichment/s01_enrichment_functions.R")
+# source(file = "E:/Chris_UM/GitHub/omics_util/04_GO_enrichment/s01_enrichment_functions.R")
 
 ##################################################################################
 
@@ -26,9 +26,9 @@ TF_dataPath <- here::here("data", "ChIPseq_CEA17")
 
 file_tf_macs2 <- paste(TF_dataPath, "/", "sample_tf_macs2.list", sep = "")
 
-matrixType <- "2kb_summit"
+matrixType <- "2kb_TSS_1kb"
 up <- 2000
-down <- 2000
+down <- 1000
 body <- 0
 bin <- 10
 matrixDim = c(c(up, body, down)/bin, bin)
@@ -57,6 +57,11 @@ tfInfo <- get_sample_information(
   samples = tfSampleList$sampleId,
   dataPath = TF_dataPath,
   profileMatrixSuffix = matrixType)
+
+
+genesGr <- GenomicFeatures::genes(txDb, filter = list(gene_id = txInfo$geneId))
+tssGr <- GenomicRanges::promoters(x = genesGr, upstream = 0, downstream = 1)
+mcols(tssGr)$name <- mcols(tssGr)$gene_id
 
 ##################################################################################
 
@@ -102,19 +107,33 @@ for(i in 1:nrow(tfInfo)){
   #   if(peakType == "broadPeak"){
   #     mcols(peaksGr)$peak <- round(width(peaksGr) / 2)
   #   }
-  # 
+  #   
   #   peakSummitGr <- GenomicRanges::narrow(x = peaksGr,
   #                                         start = pmax(peaksGr$peak, 1),
   #                                         width = 1)
-  # 
-  #   profileMat <- bigwig_profile_matrix(bwFile = tfInfo$bwFile[i],
-  #                                       regions = peakSummitGr,
-  #                                       signalName = tfInfo$profileName[i],
-  #                                       extend = c(up, down),
-  #                                       targetName = "summit",
-  #                                       storeLocal = T,
-  #                                       localPath = tfInfo$matFile[i])
+  #   
+  #   profileMat <- bigwig_profile_matrix(
+  #     bwFile = tfInfo$bwFile[i],
+  #     regions = peakSummitGr,
+  #     signalName = tfInfo$profileName[i],
+  #     extend = c(up, down),
+  #     targetName = "summit",
+  #     storeLocal = T,
+  #     localPath = tfInfo$matFile[i]
+  #   )
+  #   
   # }
+  
+  # 2kb-TSS-1kb profile matrix for all the genes
+  # profileMat <- bigwig_profile_matrix(
+  #   bwFile = tfInfo$bwFile[i],
+  #   regions = tssGr,
+  #   signalName = tfInfo$profileName[i],
+  #   extend = c(up, down),
+  #   targetName = "TSS",
+  #   storeLocal = T,
+  #   localPath = tfInfo$matFile[i]
+  # )
   
   ## extract 500bp sequence around peak summit
   peakData <- import_peaks_as_df(file = tfInfo$peakFile[i])
