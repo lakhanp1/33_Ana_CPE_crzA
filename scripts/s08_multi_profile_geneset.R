@@ -181,8 +181,13 @@ tfColorList <- sapply(
   X = c(tfIds, inputIds),
   FUN = function(x){
     return(
-      colorRamp2(breaks = quantile(tfMeanProfile, c(0.50, 0.99), na.rm = T),
-                 colors = unlist(strsplit(x = exptDataList[[x]]$color, split = ","))))
+      colorRamp2(
+        # breaks = quantile(tfMeanProfile, c(0.50, 0.95), na.rm = T),
+        # colors = unlist(strsplit(x = exptDataList[[x]]$color, split = ","))
+        breaks = quantile(tfMeanProfile, c(0.6, 0.7, 0.995, 0.999), na.rm = T),
+        colors = c("white", "#ffffcc", "#e31a1c", "#bd0026")
+      )
+    )
   }
 )
 

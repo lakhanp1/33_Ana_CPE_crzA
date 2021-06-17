@@ -206,8 +206,10 @@ tfColorList <- sapply(
   X = exptData$sampleId,
   FUN = function(x){
     return(colorRamp2(
-      breaks = quantile(tfMeanProfile, c(0.50, 0.95), na.rm = T),
-      colors = unlist(strsplit(x = exptDataList[[x]]$color, split = ","))
+      # breaks = quantile(tfMeanProfile, c(0.50, 0.95), na.rm = T),
+      # colors = unlist(strsplit(x = exptDataList[[x]]$color, split = ","))
+      breaks = quantile(tfMeanProfile, c(0.30, 0.5, 0.95), na.rm = T),
+      colors = c("white", "#ffffcc", "#e31a1c")
     )
     )
   }
@@ -223,6 +225,7 @@ profilePlots <- multi_profile_plots(
   exptInfo = exptData, genesToPlot = diffGr$name,
   profileColors = tfColorList,
   clusters = dplyr::select(peakDiffAn, geneId, cluster),
+  row_title = NULL,
   showAnnotation = FALSE,
   targetType = "point",
   targetName = "summit",
@@ -240,7 +243,7 @@ ht <- draw(
   profilePlots$heatmapList,
   main_heatmap = exptData$profileName[1],
   # split = dplyr::select(peakDiffAn, pvalGroup, diffBind),
-  column_title = paste("AflR peaks DiffBind comparison:", grp1, "/", grp2),
+  column_title = paste("crzA peaks DiffBind comparison:", grp1, "/", grp2),
   column_title_gp = gpar(fontsize = 14, fontface = "bold"),
   row_sub_title_side = "left",
   heatmap_legend_side = "right",
@@ -296,7 +299,7 @@ quantile(scalledTfDiffMat, c(0, 0.0001, 0.0005, 0.001, 0.005, 0.01, 0.02, 0.05, 
 
 
 scalledTfDiffColor <- colorRamp2(
-  breaks = c(-3, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 3),
+  breaks = c(-3, -2.5, -2, -1.5, -1, 0, 1, 1.5, 2, 2.5, 3),
   colors = RColorBrewer::brewer.pal(n = 11, name = "PRGn")
 )
 
@@ -305,7 +308,7 @@ scalledTfDiffColor <- colorRamp2(
 scalledTfDiffProf <- profile_heatmap(
   profileMat = scalledTfDiffMat,
   showAnnotation = FALSE,
-  geneGroups = dplyr::select(peakDiffAn, geneId, cluster),
+  # geneGroups = dplyr::select(peakDiffAn, geneId, cluster),
   signalName = "fold_change",
   profileColor = scalledTfDiffColor,
   column_title_gp = gpar(fontsize = 12),
@@ -314,21 +317,23 @@ scalledTfDiffProf <- profile_heatmap(
 
 rowOrd <- order(peakDiffAn$rankMetric, decreasing = TRUE)
 
-htListRatio <- scalledTfDiffProf$heatmap +
-  profilePlots$profileHeatmaps[[bestGrp2Id]]$heatmap +
+# htListRatio <- scalledTfDiffProf$heatmap +
+htListRatio <- profilePlots$profileHeatmaps[[bestGrp2Id]]$heatmap +
   profilePlots$profileHeatmaps[[bestGrp1Id]]$heatmap
 
 
-# pdf(file = paste(outPrefix, ".diff_profiles.pdf", sep = ""), width = 10, height = 12)
-png(file = paste(outPrefix, ".profile_ratio.png", sep = ""), width = 3000, height = 3000, res = 300)
+pdf(file = paste(outPrefix, ".diff_profiles.pdf", sep = ""), width = 6, height = 8)
+# png(file = paste(outPrefix, ".profile_ratio.png", sep = ""), width = 3000, height = 3000, res = 300)
 
 ht_ratio <- draw(
   htListRatio,
-  main_heatmap = "fold_change",
-  row_order = rowOrd,
-  column_title = paste("crzA peaks", grp1, "/", grp2, "signal ratio", sep = ""),
+  # main_heatmap = bestGrp2Id,
+  # row_order = rowOrd,
+  split = rep(1, nrow(tfMeanProfile)),
+  column_title = paste("crzA peaks:", grp2, "and", grp1, "condition"),
   column_title_gp = gpar(fontsize = 14, fontface = "bold"),
-  row_sub_title_side = "left",
+  # row_sub_title_side = "left",
+  row_title = NULL,
   heatmap_legend_side = "right",
   gap = unit(7, "mm"),
   padding = unit(rep(0.5, times = 4), "cm")
